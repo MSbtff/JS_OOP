@@ -1,19 +1,40 @@
+class Product {  //클래스는 템플릿이라고 생각하면 됨
+    title = 'default'; //클래스 필드 없어 됨
+    imageurl;
+    description;
+    price;
+
+    //클래스 속성
+    constructor(title, image, desc, price) { //생성자 함수는 클래스의 인스턴스가 생성될때 호출됨
+        this.title = title; //this는 클래스의 인스턴스를 가리킴
+        this.imageurl = image;
+        this.description = desc;
+        this.price = price;
+    } //생성자 함수
+
+    // someName() {}
+    // someName2() {}
+}
+
 //상품리스트를 렌더링할려면 이 안의 모든게 연결되어 있어야함
 const productsList = {
     products: [
-        {
-            title: 'A Pillow',
-            imageurl: 'https://hips.hearstapps.com/hmg-prod/images/ghi-best-pillows-1573668641.png?crop=0.621xw:0.953xh;0.194xw,0.0471xh&resize=980:*',
-            description: 'A soft pillow!',
-            price: 19.99
-        },
+        //new를 쓰면 클래스를 인스턴스화함
+        new Product(
+            'A Pillow',
+            'https://hips.hearstapps.com/hmg-prod/images/ghi-best-pillows-1573668641.png?crop=0.621xw:0.953xh;0.194xw,0.0471xh&resize=980:*',
+            'A soft pillow!',
+            19.99
+        ),
 
-        {
-            title: 'A Carpet',
-            imageurl: 'https://www.maxpixel.net/static/photo/1x/Carpet-Home-Interior-Design-Decor-Decoration-1405402.jpg',
-            description: 'A carpet which you might like - or not.',
-            price: 89.99
-        }
+        new Product(
+            'A Carpet',
+            'https://www.maxpixel.net/static/photo/1x/Carpet-Home-Interior-Design-Decor-Decoration-1405402.jpg',
+            'A carpet which you might like - or not.',
+            89.99
+        ),
+
+
     ],
     render() {
         const renderHook = document.getElementById('app');
@@ -41,5 +62,7 @@ const productsList = {
 
 
 }
+
+//객체리터럴 표기법은 데이터를 그룹으로 묶을때는 유용하지만 재사용이 가능한 객체코드를 쓰기 어려움
 
 productsList.render();
