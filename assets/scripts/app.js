@@ -21,7 +21,13 @@ class ProductItem { //위에 데이터를 묶으면 안되고 단일 상품 아�
         this.product = product;
     }
 
+    addToCart() {
+        console.log('Adding product to cart...');
+        console.log(this.product); //this는 상품아이템을 가리킴
+    }
+
     render() {
+        //여기에 있는 this는 전체 객체를 뜻함 죽 Product 객체
         const prodEl = document.createElement('li'); //li를 만들고
         prodEl.className = 'product-item'
         //이렇게 하면 css에서 .product-item를 적용할 수 있음
@@ -35,6 +41,8 @@ class ProductItem { //위에 데이터를 묶으면 안되고 단일 상품 아�
                             <button>Add to Cart</button>
                     </div>
                 `;
+        const addCartButton = prodEl.querySelector('button');
+        addCartButton.addEventListener('click', this.addToCart.bind(this));
         return prodEl;
     }
 }
