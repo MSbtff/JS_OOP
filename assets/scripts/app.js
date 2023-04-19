@@ -16,6 +16,28 @@ class Product {  //클래스는 템플릿이라고 생각하면 됨
     // someName2() {}
 }
 
+class ShoppingCart {
+    items = [];
+
+    //메서드 생성
+    // product를 수락하고 렌더링된 cart를 업데이트한게 addProduct
+    addProduct(product) {
+        this.items.push(product); //상품을 장바구니에 추가함
+        this.totalOutput = `<h2>Total: \$${1}</h2>`;
+    }
+
+    render() {
+        const cartEl = document.createElement('section');
+        cartEl.innerHTML = `
+            <h2>Total: \$${0}</h2>
+            <button>Order Now!</button>
+        `;
+        cartEl.className = 'cart';
+        this.totalOutput = cartEl.querySelector('h2')
+        return cartEl; //렌더 될때마다 cartEl를 반환함
+    }
+}
+
 class ProductItem { //위에 데이터를 묶으면 안되고 단일 상품 아이템을 묶어야함
     constructor(product) {
         this.product = product;
@@ -24,6 +46,7 @@ class ProductItem { //위에 데이터를 묶으면 안되고 단일 상품 아�
     addToCart() {
         console.log('Adding product to cart...');
         console.log(this.product); //this는 상품아이템을 가리킴
+        ShoppingCart.addProduct() //클래스 자체를 입력하면 사용 못함 그래서 인스턴스화 해야함
     }
 
     render() {
@@ -43,6 +66,7 @@ class ProductItem { //위에 데이터를 묶으면 안되고 단일 상품 아�
                 `;
         const addCartButton = prodEl.querySelector('button');
         addCartButton.addEventListener('click', this.addToCart.bind(this));
+        //bind를 쓰면 this를 상품아이템을 가리킴
         return prodEl;
     }
 }
@@ -67,7 +91,6 @@ class ProductList {
     constructor() { }
 
     render() {
-        const renderHook = document.getElementById('app');
         const prodList = document.createElement('ul');
         prodList.className = 'product-list';
         for (const prod of this.products) { //this는 productsList를 가리킴 prodList가 아님
@@ -75,13 +98,35 @@ class ProductList {
             const prodEl = productItem.render(); //상품아이템을 렌더링함
             prodList.append(prodEl); //ul에 li를 추가함
         }
-        renderHook.append(prodList); //app에 ul을 추가함
+        return prodList;
     }
 }
+
+class Shop {
+    render() {
+        const renderHook = document.getElementById('app'); //app을 찾음
+
+        const cart = new ShoppingCart(); //인스턴스화
+        const cartEl = cart.render(); //인스턴스화한 객체를 렌더링함
+        const productList = new ProductList(); //인스턴스화
+        const prodListEl = productList.render(); //인스턴스화한 객체를 렌더링함
+
+        renderHook.append(cartEl); //app에 section을 추가함
+        renderHook.append(prodListEl); //app에 ul을 추가함
+
+    }
+}
+
+class App {  // 정적인 클래스
+    static init() {
+        const shop = new Shop(); //인스턴스화
+        shop.render(); //인스턴스화한 객체를 렌더링함
+    }
+}
+
+App.init(); //클래스에서 실행함
 
 //상품리스트를 렌더링할려면 이 안의 모든게 연결되어 있어야함
 
 //객체리터럴 표기법은 데이터를 그룹으로 묶을때는 유용하지만 재사용이 가능한 객체코드를 쓰기 어려움
 
-const productList = new ProductList(); //인스턴스화
-productList.render(); //인스턴스화한 객체를 렌더링함
