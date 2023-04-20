@@ -19,10 +19,29 @@ class Product {  //클래스는 템플릿이라고 생각하면 됨
 class ShoppingCart {
     items = [];
 
+    set cartItems(value) {
+        this.items = value; //value가 cartiems의 배열이 됨 기존의 items 배열을 덮어씀
+        this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(2)}</h2>`;
+        //새로운 cartItems을 설정할 때마다 totalAmout를 다시 계산함
+        //toFixed는 소수점을 2자리까지 표현함 부정확성을 위해 표기함
+    }
+    get totalAmount() { //getter
+        //preValue는 기존값 curItem은 현재값
+        const sum = this.items.reduce(
+            (preValue, curItem) => preValue + curItem.price,
+            0
+        ); //reduce는 배열을 하나의 값으로 줄이는 함수
+        // items가 빈 배열이면 초기값은 0으로 반환임
+        return sum;
+    }
+
     //메서드 생성
-    addProduct(product) {
-        this.items.push(product); //상품을 장바구니에 추가함
-        this.totalOutput.innerHTML = `<h2>Total: \$${1}</h2>`;
+    addProduct(product) { //템플릿 리터럴임
+        const updatedItems = [...this.items]; //기존의 배열을 복사함
+        updatedItems.push(product); //상품을 장바구니에 추가함
+        this.cartItems = updatedItems; //새로운 배열을 cartItems에 할당함
+        // this.items.push(product); //상품을 장바구니에 추가함
+
     }
 
     render() {
@@ -129,6 +148,7 @@ class App {  // 정적인 클래스
 
     static init() {
         const shop = new Shop(); //인스턴스화
+        // const { cart } = shop; // 구조 분해를 사용하여 shop에서 cart를 꺼낼 수 있음
         shop.render(); //인스턴스화한 객체를 렌더링함
         this.cart = shop.cart;
     }
