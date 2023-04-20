@@ -20,10 +20,9 @@ class ShoppingCart {
     items = [];
 
     //메서드 생성
-    // product를 수락하고 렌더링된 cart를 업데이트한게 addProduct
     addProduct(product) {
         this.items.push(product); //상품을 장바구니에 추가함
-        this.totalOutput = `<h2>Total: \$${1}</h2>`;
+        this.totalOutput.innerHTML = `<h2>Total: \$${1}</h2>`;
     }
 
     render() {
@@ -44,9 +43,13 @@ class ProductItem { //위에 데이터를 묶으면 안되고 단일 상품 아�
     }
 
     addToCart() {
-        console.log('Adding product to cart...');
-        console.log(this.product); //this는 상품아이템을 가리킴
-        ShoppingCart.addProduct() //클래스 자체를 입력하면 사용 못함 그래서 인스턴스화 해야함
+        // product를 수락하고 렌더링된 cart를 업데이트한게 addProduct
+        App.addProductToCart(this.product); // Productitem에 저장된 product 의미
+        //클래스 자체에서 작업하고 cart 인스턴스를 비롯해 데이터를 공유한다는 점이 활용방법
+
+        // console.log('Adding product to cart...');
+        // console.log(this.product); //this는 상품아이템을 가리킴
+        // ShoppingCart.addProduct() //클래스 자체를 입력하면 사용 못함 그래서 인스턴스화 해야함
     }
 
     render() {
@@ -106,8 +109,10 @@ class Shop {
     render() {
         const renderHook = document.getElementById('app'); //app을 찾음
 
-        const cart = new ShoppingCart(); //인스턴스화
-        const cartEl = cart.render(); //인스턴스화한 객체를 렌더링함
+        //this를 장점이 사용하면 밑에 App클래스에서 init에서 Shop으로 액세스 할 수 있음
+        this.cart = new ShoppingCart(); //인스턴스화
+
+        const cartEl = this.cart.render(); //인스턴스화한 객체를 렌더링함
         const productList = new ProductList(); //인스턴스화
         const prodListEl = productList.render(); //인스턴스화한 객체를 렌더링함
 
@@ -118,9 +123,23 @@ class Shop {
 }
 
 class App {  // 정적인 클래스
+    static cart; //정적 필드 추가 즉 cart 프로퍼티가 있음
+    //this를 정적 메서드에서 사용하면 항상 클래스 자체를 의미
+    //클래스를 기반으로 하는 객체를 가리키는게 아님
+
     static init() {
         const shop = new Shop(); //인스턴스화
         shop.render(); //인스턴스화한 객체를 렌더링함
+        this.cart = shop.cart;
+    }
+
+    //이렇게 한 이유는 정적 메서드를 App에서도 사용할 수 있기 때문
+    static addProductToCart(product) {
+        this.cart.addProduct(product); //App클래스와 정적 메서드를 프록시로 이용
+        //항상 인스턴스가 아닌 클래스로 작업하여 서로 다른 객체에서 작업하지 않음
+        //정적 방법 없이 App의 여러 곳에 애플리케이션을 만드는 대신 App을 초기화하는 애플리케이션 이용
+        //그 결과 Productitem에서 호출하는 것과 같음
+
     }
 }
 
