@@ -127,7 +127,7 @@ class ProductList {
 class Shop {
     render() {
         const renderHook = document.getElementById('app'); //app을 찾음
-
+        // 수정상황
         //this를 장점이 사용하면 밑에 App클래스에서 init에서 Shop으로 액세스 할 수 있음
         this.cart = new ShoppingCart(); //인스턴스화
 
