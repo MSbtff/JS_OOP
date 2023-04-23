@@ -16,7 +16,34 @@ class Product {  //클래스는 템플릿이라고 생각하면 됨
     // someName2() {}
 }
 
-class ShoppingCart {
+class ElementAtrribute {
+    constructor(attrName, attrValue) {
+        this.name = attrName;
+        this.value = attrValue;
+    }
+}
+
+class Component {
+    constructor(renderHookId) {
+        this.hook = renderHookId; //hook 프로퍼티는 constructor에서 전달받은 데이터 가짐
+    }
+
+    createRootElement(tag, cssClasses, attributes) {
+        const rootElement = document.createElement(tag);
+        if (cssClasses) {
+            rootElement.className = cssClasses;
+        } if (attributes && attributes.length > 0) {
+            for (const attr of attributes) {
+                rootElement.setAttribuet(attr.name, attr.value);
+            }
+        }
+        document.getElementById(this.hookId).append(rootElement);
+        return rootElement;
+    }
+}
+
+class ShoppingCart extends Component { //1개의 클래스에서만 확장가능
+    //하위 클래스인 경우  생성자가 없으며 상위 클래스의 생성자를 호출해야함
     items = [];
 
     set cartItems(value) {
@@ -35,6 +62,11 @@ class ShoppingCart {
         return sum;
     }
 
+    //constructor() 호출 하지만 부모 클래스의 생성자를 호출하기위해 super()사용
+    constructor() {
+        super()
+    }
+
     //메서드 생성
     addProduct(product) { //템플릿 리터럴임
         const updatedItems = [...this.items]; //기존의 배열을 복사함
@@ -45,12 +77,11 @@ class ShoppingCart {
     }
 
     render() {
-        const cartEl = document.createElement('section');
+        const cartEl = this.createRootElement('section', 'cart'); //여기 this는 이 클래스뿐만 아니라 부모 클래스까지 가리킴
         cartEl.innerHTML = `
             <h2>Total: \$${0}</h2>
             <button>Order Now!</button>
         `;
-        cartEl.className = 'cart';
         this.totalOutput = cartEl.querySelector('h2')
         return cartEl; //렌더 될때마다 cartEl를 반환함
     }
