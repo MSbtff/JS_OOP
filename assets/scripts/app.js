@@ -16,7 +16,7 @@ class Product {  //클래스는 템플릿이라고 생각하면 됨
     // someName2() {}
 }
 
-class ElementAtrribute {
+class ElementAttribute {
     constructor(attrName, attrValue) {
         this.name = attrName;
         this.value = attrValue;
@@ -25,7 +25,7 @@ class ElementAtrribute {
 
 class Component {
     constructor(renderHookId) {
-        this.hook = renderHookId; //hook 프로퍼티는 constructor에서 전달받은 데이터 가짐
+        this.hookId = renderHookId; //hook 프로퍼티는 constructor에서 전달받은 데이터 가짐
     }
 
     createRootElement(tag, cssClasses, attributes) {
@@ -34,7 +34,7 @@ class Component {
             rootElement.className = cssClasses;
         } if (attributes && attributes.length > 0) {
             for (const attr of attributes) {
-                rootElement.setAttribuet(attr.name, attr.value);
+                rootElement.setAttribute(attr.name, attr.value);
             }
         }
         document.getElementById(this.hookId).append(rootElement);
@@ -63,9 +63,13 @@ class ShoppingCart extends Component { //1개의 클래스에서만 확장가능
     }
 
     //constructor() 호출 하지만 부모 클래스의 생성자를 호출하기위해 super()사용
-    constructor() {
-        super()
+    constructor(renderHookId) {
+        super(renderHookId)
     }
+    //부모 클래스에도 실행해야하는 생성자가 있는 경우 자체 constructor에서 실행해야함
+    //주의점 super사용시 constructor() 메서드의 어떤 필드에도 의존하지 않음
+    //super()는 항상 this를 참조하기 전에 호출해야함
+    //무엇이 무엇과 같다는 식으로 생성자에 프로퍼티를 추가하려면 먼저 super를 호출해야함
 
     //메서드 생성
     addProduct(product) { //템플릿 리터럴임
@@ -83,13 +87,14 @@ class ShoppingCart extends Component { //1개의 클래스에서만 확장가능
             <button>Order Now!</button>
         `;
         this.totalOutput = cartEl.querySelector('h2')
-        return cartEl; //렌더 될때마다 cartEl를 반환함
+        // return cartEl; //렌더 될때마다 cartEl를 반환함
     }
 }
 
-class ProductItem { //위에 데이터를 묶으면 안되고 단일 상품 아이템을 묶어야함
-    constructor(product) {
-        this.product = product;
+class ProductItem extends Component { //위에 데이터를 묶으면 안되고 단일 상품 아이템을 묶어야함
+    constructor(product, renderHookId) {
+        super(renderHookId);
+        this.product = product; //생성자가 액세스 권한 얻게 됨
     }
 
     addToCart() {
@@ -104,8 +109,8 @@ class ProductItem { //위에 데이터를 묶으면 안되고 단일 상품 아�
 
     render() {
         //여기에 있는 this는 전체 객체를 뜻함 죽 Product 객체
-        const prodEl = document.createElement('li'); //li를 만들고
-        prodEl.className = 'product-item'
+        const prodEl = this.createRootElement('li', 'product-item'); //li를 만들고
+        // prodEl.className = 'product-item'
         //이렇게 하면 css에서 .product-item를 적용할 수 있음
         prodEl.innerHTML = `
                     <div>
@@ -120,11 +125,11 @@ class ProductItem { //위에 데이터를 묶으면 안되고 단일 상품 아�
         const addCartButton = prodEl.querySelector('button');
         addCartButton.addEventListener('click', this.addToCart.bind(this));
         //bind를 쓰면 this를 상품아이템을 가리킴
-        return prodEl;
+
     }
 }
 
-class ProductList {
+class ProductList extends Component {
     products = [
         //new를 쓰면 클래스를 인스턴스화함
         new Product(
@@ -138,36 +143,39 @@ class ProductList {
             'https://www.maxpixel.net/static/photo/1x/Carpet-Home-Interior-Design-Decor-Decoration-1405402.jpg',
             'A carpet which you might like - or not.',
             89.99
-        ),
+        )
     ]; //상품리스트를 담을 배열
 
-    constructor() { }
+    constructor(renderHookId) {
+        super(renderHookId);
+    }
 
     render() {
-        const prodList = document.createElement('ul');
-        prodList.className = 'product-list';
+        this.createRootElement('ul', 'product-list',
+            [new ElementAttribute('id', 'prod-list')
+            ]);
         for (const prod of this.products) { //this는 productsList를 가리킴 prodList가 아님
-            const productItem = new ProductItem(prod); //상품아이템을 인스턴스화함
-            const prodEl = productItem.render(); //상품아이템을 렌더링함
-            prodList.append(prodEl); //ul에 li를 추가함
+            const productItem = new ProductItem(prod, 'prod-list'); //상품아이템을 인스턴스화함
+            productItem.render(); //상품아이템을 렌더링함
         }
-        return prodList;
     }
 }
 
 class Shop {
     render() {
-        const renderHook = document.getElementById('app'); //app을 찾음
+        // const renderHook = document.getElementById('app'); //app을 찾음
         // 수정상황
         //this를 장점이 사용하면 밑에 App클래스에서 init에서 Shop으로 액세스 할 수 있음
-        this.cart = new ShoppingCart(); //인스턴스화
+        this.cart = new ShoppingCart('app'); //인스턴스화 
+        this.cart.render();
+        const productList = new ProductList('app'); //인스턴스화
+        productList.render();
+        // const cartEl = this.cart.render(); //인스턴스화한 객체를 렌더링함
+        // const productList = new ProductList(); //인스턴스화
+        // const prodListEl = productList.render(); //인스턴스화한 객체를 렌더링함
 
-        const cartEl = this.cart.render(); //인스턴스화한 객체를 렌더링함
-        const productList = new ProductList(); //인스턴스화
-        const prodListEl = productList.render(); //인스턴스화한 객체를 렌더링함
-
-        renderHook.append(cartEl); //app에 section을 추가함
-        renderHook.append(prodListEl); //app에 ul을 추가함
+        // renderHook.append(cartEl); //app에 section을 추가함
+        // renderHook.append(prodListEl); //app에 ul을 추가함
 
     }
 }
